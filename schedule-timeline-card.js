@@ -4,7 +4,7 @@
  * Modos: simple | next | calendar
  */
 
-const CARD_VERSION = "1.0.3";
+const CARD_VERSION = "1.0.4";
 const DAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 const REFETCH_MS = 5 * 60 * 1000;
 const TICK_MS = 30 * 1000;
@@ -184,7 +184,8 @@ class ScheduleTimelineCard extends HTMLElement {
   }
 
   getGridOptions() {
-    return { columns: 12, rows: "auto", min_columns: 3 };
+    const c = this._config || {};
+    return { columns: c.mode === "simple" ? 6 : 12, rows: "auto", min_columns: 3 };
   }
 
   _needsConfig() {
@@ -387,7 +388,7 @@ class ScheduleTimelineCard extends HTMLElement {
       info = `<div class="name">${esc(name)}</div><div class="sub${isOn ? " on" : ""}">${stateText}</div>`;
       chip = "";
     } else if (c.mode === "next") {
-      info = `<div class="name">${esc(name)}</div><div class="main">${esc(nextLabel)}</div><div class="sub">${esc(countdown)}</div>`;
+      info = `<div class="name">${esc(name)}</div><div class="sub nextline"><span class="strong">${esc(nextLabel)}</span>${countdown ? ` \u00b7 ${esc(countdown)}` : ""}</div>`;
     } else {
       const line = [nextLabel, countdown].filter(Boolean).join(" \u00b7 ");
       info = `<div class="name">${esc(name)}</div>${c.show_next ? `<div class="sub">${esc(line)}</div>` : ""}`;
@@ -402,7 +403,7 @@ class ScheduleTimelineCard extends HTMLElement {
     const clickable = tap !== "none";
     const body = c.mode === "calendar" ? this._calendar(np, nowMin, t, sch) : "";
 
-    root.innerHTML = `<style>${STYLE}</style><ha-card class="${clickable ? "click" : ""}${c.mode === "simple" ? " simple" : ""}" style="--on:${esc(onColor)};--nowc:${esc(nowColor)}"><div class="head">${icon}<div class="info">${info}</div>${chip}</div>${body}</ha-card>`;
+    root.innerHTML = `<style>${STYLE}</style><ha-card class="${clickable ? "click" : ""}${c.mode !== "calendar" ? " compact" : ""}" style="--on:${esc(onColor)};--nowc:${esc(nowColor)}"><div class="head">${icon}<div class="info">${info}</div>${chip}</div>${body}</ha-card>`;
 
     if (clickable) {
       const card = root.querySelector("ha-card");
@@ -418,10 +419,13 @@ class ScheduleTimelineCard extends HTMLElement {
 }
 
 const STYLE = `
-:host{display:block}
+:host{display:block;container-type:inline-size}
 ha-card{padding:12px 16px;overflow:hidden}
 ha-card.click{cursor:pointer}
-ha-card.simple{padding:8px 12px}
+ha-card.compact{padding:8px 12px}
+.sub.nextline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strong{color:var(--primary-text-color);font-weight:500}
+@container (max-width:300px){.chip{display:none}}
 .head{display:flex;align-items:center;gap:12px}
 .ico{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--secondary-text-color) 15%,transparent);color:var(--secondary-text-color)}
 .ico.on{background:color-mix(in srgb,var(--on) 18%,transparent);color:var(--on)}
