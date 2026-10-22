@@ -122,6 +122,23 @@ on_color: "#2196f3"
 - **Old version after an update**: clear the browser cache or add a version suffix to the resource URL, for example `/local/schedule-timeline-card.js?v=2`.
 - **Weird characters in labels**: make sure you are running version 1.0.1 or newer.
 
+## Versions
+
+Tags and releases are created automatically by the `Release` workflow (`.github/workflows/release.yml`).
+
+The version lives in a single place: the `CARD_VERSION` constant at the top of `schedule-timeline-card.js`.
+
+To publish a new version:
+
+1. Bump `CARD_VERSION` in `schedule-timeline-card.js` (for example from `1.0.1` to `1.0.2`).
+2. Commit and push to `main`.
+
+When a push to `main` changes `schedule-timeline-card.js`, the workflow reads the version and checks whether the release `v<version>` already exists. If it does not, it creates the tag and the release, attaches the card file and generates the release notes from the commits. If it already exists, nothing happens, so the workflow is safe to run more than once.
+
+The workflow can also be started manually from the **Actions** tab (**Run workflow**). This is useful for the very first release, or to retry after a failure.
+
+Repository setting required: **Settings > Actions > General > Workflow permissions > Read and write permissions**.
+
 ## Contributing
 
 Issues and pull requests are welcome.

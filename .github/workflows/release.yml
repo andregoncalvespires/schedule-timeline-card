@@ -2,26 +2,43 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
+    paths:
+      - schedule-timeline-card.js
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   release:
-    name: Publish release
+    name: Create tag and release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check tag matches card version
+
+      - name: Read version
+        id: version
         run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          FILE_VERSION=$(grep -oP 'CARD_VERSION = "\K[^"]+' schedule-timeline-card.js)
-          echo "tag=$TAG file=$FILE_VERSION"
-          test "$TAG" = "$FILE_VERSION"
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: schedule-timeline-card.js
-          generate_release_notes: true
+          version=$(python3 -c "import re; m = re.search(r'CARD_VERSION = \"([^\"]+)\"', open('schedule-timeline-card.js').read()); print(m.group(1) if m else '')")
+          if [ -z "$version" ]; then
+            echo "CARD_VERSION not found in schedule-timeline-card.js" >&2
+            exit 1
+          fi
+          echo "Version found: $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create release if the tag does not exist yet
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tag="v${VERSION}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; nothing to do."
+          else
+            gh release create "$tag" schedule-timeline-card.js \
+              --target "$GITHUB_SHA" \
+              --title "$tag" \
+              --generate-notes
+          fi
