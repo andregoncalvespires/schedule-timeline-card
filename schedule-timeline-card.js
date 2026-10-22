@@ -4,7 +4,7 @@
  * Modos: simple | next | calendar
  */
 
-const CARD_VERSION = "1.0.2";
+const CARD_VERSION = "1.0.3";
 const DAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 const REFETCH_MS = 5 * 60 * 1000;
 const TICK_MS = 30 * 1000;

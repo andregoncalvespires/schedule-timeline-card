@@ -1,10 +1,13 @@
 name: Release
 
+# Runs only after the "Validate" workflow has finished successfully on main,
+# so a release is always created after the HACS validation has passed.
+# It can also be started manually from the Actions tab.
 on:
-  push:
+  workflow_run:
+    workflows: ["Validate"]
+    types: [completed]
     branches: [main]
-    paths:
-      - schedule-timeline-card.js
   workflow_dispatch:
 
 permissions:
@@ -13,9 +16,15 @@ permissions:
 jobs:
   release:
     name: Create tag and release
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event != 'pull_request')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Read version
         id: version
@@ -32,13 +41,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
+          TARGET_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
           tag="v${VERSION}"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "Release $tag already exists; nothing to do."
           else
             gh release create "$tag" schedule-timeline-card.js \
-              --target "$GITHUB_SHA" \
+              --target "$TARGET_SHA" \
               --title "$tag" \
               --generate-notes
           fi

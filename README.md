@@ -158,7 +158,7 @@ To publish a new version:
 1. Bump `CARD_VERSION` in `schedule-timeline-card.js` (for example from `1.0.1` to `1.0.2`).
 2. Commit and push to `main`.
 
-When a push to `main` changes `schedule-timeline-card.js`, the workflow reads the version and checks whether the release `v<version>` already exists. If it does not, it creates the tag and the release, attaches the card file and generates the release notes from the commits. If it already exists, nothing happens, so the workflow is safe to run more than once.
+The `Release` workflow runs only after the `Validate` workflow (HACS validation and syntax check) has finished successfully on `main`, so a release is always created after the validation has passed. It reads the version and checks whether the release `v<version>` already exists. If it does not, it creates the tag and the release, attaches the card file and generates the release notes from the commits. If it already exists, nothing happens, so the workflow is safe to run more than once. Pushes that do not change the version simply end with "already exists".
 
 The workflow can also be started manually from the **Actions** tab (**Run workflow**). This is useful for the very first release, or to retry after a failure.
 
