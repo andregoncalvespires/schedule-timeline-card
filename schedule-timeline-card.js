@@ -4,7 +4,7 @@
  * Modos: simple | next | calendar
  */
 
-const CARD_VERSION = "1.0.1";
+const CARD_VERSION = "1.0.2";
 const DAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 const REFETCH_MS = 5 * 60 * 1000;
 const TICK_MS = 30 * 1000;
@@ -184,8 +184,7 @@ class ScheduleTimelineCard extends HTMLElement {
   }
 
   getGridOptions() {
-    const c = this._config || {};
-    return { columns: 12, rows: c.mode === "calendar" ? "auto" : 2, min_columns: 4 };
+    return { columns: 12, rows: "auto", min_columns: 3 };
   }
 
   _needsConfig() {
@@ -403,7 +402,7 @@ class ScheduleTimelineCard extends HTMLElement {
     const clickable = tap !== "none";
     const body = c.mode === "calendar" ? this._calendar(np, nowMin, t, sch) : "";
 
-    root.innerHTML = `<style>${STYLE}</style><ha-card class="${clickable ? "click" : ""}" style="--on:${esc(onColor)};--nowc:${esc(nowColor)}"><div class="head">${icon}<div class="info">${info}</div>${chip}</div>${body}</ha-card>`;
+    root.innerHTML = `<style>${STYLE}</style><ha-card class="${clickable ? "click" : ""}${c.mode === "simple" ? " simple" : ""}" style="--on:${esc(onColor)};--nowc:${esc(nowColor)}"><div class="head">${icon}<div class="info">${info}</div>${chip}</div>${body}</ha-card>`;
 
     if (clickable) {
       const card = root.querySelector("ha-card");
@@ -422,6 +421,7 @@ const STYLE = `
 :host{display:block}
 ha-card{padding:12px 16px;overflow:hidden}
 ha-card.click{cursor:pointer}
+ha-card.simple{padding:8px 12px}
 .head{display:flex;align-items:center;gap:12px}
 .ico{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--secondary-text-color) 15%,transparent);color:var(--secondary-text-color)}
 .ico.on{background:color-mix(in srgb,var(--on) 18%,transparent);color:var(--on)}
