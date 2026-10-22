@@ -15,6 +15,31 @@ Three display modes:
 | `next` | The next activation or deactivation, with a countdown ("Turns off at 20:00, in 1h 00min"). |
 | `calendar` | A 24h timeline per day, with the configured on-periods painted in. Today comes first and is highlighted, with a marker for the current time. |
 
+## Screenshots
+
+The images follow your GitHub theme (light or dark).
+
+**Calendar mode**
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/calendar-dark.png">
+  <img alt="Calendar mode: 5-day timeline with today highlighted" src="images/calendar-light.png" width="480">
+</picture>
+
+**Next event mode**
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/next-dark.png">
+  <img alt="Next event mode: next switch time with countdown" src="images/next-light.png" width="480">
+</picture>
+
+**Simple mode**
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/simple-dark.png">
+  <img alt="Simple mode: icon and on/off state" src="images/simple-light.png" width="480">
+</picture>
+
 ## Features
 
 - Custom icons for the on and off states (`icon`, `icon_off`), falling back to the entity icon.
