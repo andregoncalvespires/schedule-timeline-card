@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check tag matches card version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          FILE_VERSION=$(grep -oP 'CARD_VERSION = "\K[^"]+' schedule-timeline-card.js)
+          echo "tag=$TAG file=$FILE_VERSION"
+          test "$TAG" = "$FILE_VERSION"
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: schedule-timeline-card.js
+          generate_release_notes: true
