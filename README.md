@@ -1,6 +1,6 @@
 # Schedule Timeline Card
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
+[![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![Validate](https://github.com/andregoncalvespires/schedule-timeline-card/actions/workflows/validate.yml/badge.svg)](https://github.com/andregoncalvespires/schedule-timeline-card/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -54,7 +54,16 @@ The images follow your GitHub theme (light or dark).
 
 ## Installation
 
+### HACS (recommended)
+
+1. Open HACS and search for **Schedule Timeline Card**.
+2. Click **Download** and reload your browser.
+
+[![Open your Home Assistant instance and open this repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=andregoncalvespires&repository=schedule-timeline-card&category=plugin)
+
 ### HACS (custom repository)
+
+Use this if the card does not show up in the HACS search yet (for example, right after it was added to the default list), or if you want to install it from the repository directly.
 
 1. Open HACS and go to the menu in the top right, then **Custom repositories**.
 2. Add `https://github.com/andregoncalvespires/schedule-timeline-card` with the category **Dashboard**.
