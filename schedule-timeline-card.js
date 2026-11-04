@@ -4,10 +4,12 @@
  * Modos: simple | next | calendar
  */
 
-const CARD_VERSION = "1.0.4";
+const CARD_VERSION = "1.0.5";
 const DAY_KEYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 const REFETCH_MS = 5 * 60 * 1000;
 const TICK_MS = 30 * 1000;
+const AFTER_TAP_WINDOW_MS = 15 * 60 * 1000;
+const AFTER_TAP_REFETCH_MS = 5 * 1000;
 
 const I18N = {
   pt: {
@@ -152,16 +154,16 @@ class ScheduleTimelineCard extends HTMLElement {
     if (!this._config) return;
     const st = hass.states[this._config.entity];
     const a = (st && st.attributes) || {};
-    const key = st ? `${st.state}|${a.next_event}|${st.last_updated}` : "none";
+    const key = st
+      ? `${st.state}|${st.last_updated}|${st.last_reported || ""}|${JSON.stringify(a)}`
+      : "none";
     const changed = st !== this._stateObj;
     this._stateObj = st;
     if (key !== this._key) {
       this._key = key;
       this._lastFetch = 0;
     }
-    if (this._needsConfig() && !this._loading && Date.now() - this._lastFetch > REFETCH_MS) {
-      this._fetch();
-    }
+    this._maybeFetch();
     if (changed || !this._shown) {
       this._shown = true;
       this._render();
@@ -169,12 +171,29 @@ class ScheduleTimelineCard extends HTMLElement {
   }
 
   connectedCallback() {
-    this._timer = setInterval(() => this._render(), TICK_MS);
+    this._onDialogClosed = () => {
+      if (!this._config || Date.now() > (this._afterTapUntil || 0)) return;
+      this._lastFetch = 0;
+      setTimeout(() => this._maybeFetch(), 400);
+    };
+    document.addEventListener("dialog-closed", this._onDialogClosed);
+    this._timer = setInterval(() => {
+      this._maybeFetch();
+      this._render();
+    }, TICK_MS);
     this._render();
   }
 
   disconnectedCallback() {
     clearInterval(this._timer);
+    document.removeEventListener("dialog-closed", this._onDialogClosed);
+  }
+
+  _maybeFetch() {
+    if (!this._config || !this._hass || this._loading || !this._needsConfig()) return;
+    const age = Date.now() - this._lastFetch;
+    const afterTap = Date.now() < (this._afterTapUntil || 0);
+    if (age > REFETCH_MS || (afterTap && age > AFTER_TAP_REFETCH_MS)) this._fetch();
   }
 
   getCardSize() {
@@ -409,6 +428,7 @@ class ScheduleTimelineCard extends HTMLElement {
       const card = root.querySelector("ha-card");
       if (card) {
         card.addEventListener("click", () => {
+          this._afterTapUntil = Date.now() + AFTER_TAP_WINDOW_MS;
           this.dispatchEvent(
             new CustomEvent("hass-more-info", { detail: { entityId: c.entity }, bubbles: true, composed: true })
           );
